@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dataroom</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f8;
+            padding: 20px;
+            color: #333;
+        }
+        .logo {
+            height: 60px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #0078D7;
+        }
+        #searchInput {
+            margin-bottom: 15px;
+            padding: 8px;
+            width: 100%;
+            max-width: 400px;
+            font-size: 16px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #0078D7;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        a {
+            color: #0078D7;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/4/48/Markdown-mark.svg" alt="Logo" class="logo">
+    <h1>Dataroom Tài liệu</h1>
+    <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Tìm kiếm tài liệu...">
+    <div id="table_div"></div>
+
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['table']});
+        google.charts.setOnLoadCallback(drawTable);
+
+        function drawTable() {
+            var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/e/2PACX-1vShYwdwxXFMh0SaOCz9asVsMe-6k_XDPu48ky2vf4gpFRj148d4F3Gr0C46pBo0qH5EZZtCnzQxFXbU/pub?output=csv');
+            query.send(handleQueryResponse);
+        }
+
+        function handleQueryResponse(response) {
+            if (response.isError()) {
+                document.getElementById('table_div').innerHTML = 'Lỗi khi tải dữ liệu: ' + response.getMessage();
+                return;
+            }
+
+            var data = response.getDataTable();
+            var table = new google.visualization.Table(document.getElementById('table_div'));
+            table.draw(data, {showRowNumber: false, width: '100%', allowHtml: true});
+        }
+
+        function searchTable() {
+            var input = document.getElementById("searchInput").value.toLowerCase();
+            var tableDiv = document.getElementById("table_div");
+            var rows = tableDiv.getElementsByTagName("tr");
+
+            for (var i = 1; i < rows.length; i++) {
+                var rowText = rows[i].innerText.toLowerCase();
+                rows[i].style.display = rowText.includes(input) ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
