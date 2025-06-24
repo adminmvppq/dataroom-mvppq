@@ -75,7 +75,7 @@
     // Hàm kiểm tra và tạo link HTML nếu cần
     function parseLinks(text) {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
-      return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+      return text.replace(urlRegex, url => `<a href="${url}" target="_blank">View Detailed / Xem chi tiết</a>`);
     }
 
     // Đọc và chuyển CSV sang table
