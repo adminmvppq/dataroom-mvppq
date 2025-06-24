@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Sheet to Table</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    input[type="text"] {
+      padding: 6px;
+      width: 300px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    a {
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Dữ liệu từ Google Sheets</h2>
+  <input type="text" id="searchInput" placeholder="Tìm kiếm...">
+
+  <table id="dataTable">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    // Link CSV từ Google Sheets
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShYwdwxXFMh0SaOCz9asVsMe-6k_XDPu48ky2vf4gpFRj148d4F3Gr0C46pBo0qH5EZZtCnzQxFXbU/pub?output=csv";
+	
+  // Hàm xóa dấu tiếng Việt
+  function removeVietnameseTones(str) {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+      .toLowerCase();
+  }
+
+    // Hàm kiểm tra và tạo link HTML nếu cần
+    function parseLinks(text) {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+    }
+
+    // Đọc và chuyển CSV sang table
+    fetch(csvUrl)
+      .then(response => response.text())
+      .then(data => {
+        const rows = data.split('\n').filter(row => row.trim() !== '');
+        const tableHead = document.querySelector('#dataTable thead');
+        const tableBody = document.querySelector('#dataTable tbody');
+
+        const headers = rows[0].split(',').map(h => h.trim());
+        const headerRow = document.createElement('tr');
+        headers.forEach(header => {
+          const th = document.createElement('th');
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        tableHead.appendChild(headerRow);
+
+        for (let i = 1; i < rows.length; i++) {
+          const row = document.createElement('tr');
+          const cells = rows[i].split(',').map(c => c.trim());
+          cells.forEach(cell => {
+            const td = document.createElement('td');
+            td.innerHTML = parseLinks(cell);
+            row.appendChild(td);
+          });
+          tableBody.appendChild(row);
+        }
+      });
+
+    // Tìm kiếm có hỗ trợ tiếng Việt không dấu
+  document.getElementById('searchInput').addEventListener('keyup', function () {
+    const keyword = removeVietnameseTones(this.value);
+    const rows = document.querySelectorAll('#dataTable tbody tr');
+
+    rows.forEach(row => {
+      const text = removeVietnameseTones(row.textContent);
+      row.style.display = text.includes(keyword) ? '' : 'none';
+    });
+    });
+  </script>
+
+</body>
+</html>
